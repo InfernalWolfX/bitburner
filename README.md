@@ -1,17 +1,34 @@
 # bb-external-editor
 
+All credit to [shyguy1412](https://github.com/shyguy1412) as they did all the work in making the template and plugins!
+
 This is a template for using any external editor for Bitburner. This Template supports JS, JSX, TS and TSX out of the box.
 
-## How to get started
+## How to get started (choose one method)
+
+### Cloning this Repo
 
 1. If you dont already have it installed, install [NodeJS](https://nodejs.org) v20 or newer
-1. Clone this repository
-1. navigate to the template (`cd path/to/the/template`) inside your console
+1. Clone this repository `git clone https://github.com/shyguy1412/bb-external-editor`
+1. navigate to the template inside your console `cd bb-external-editor`
 1. run `npm install` in your console to install all dependencies
 1. run `npm start` in your console to start the RemoteAPI server
 1. open Bitburner and navigate to the settings
 1. open the tab labeled 'Remote API' and enter the port '12525'
 1. press connect
+
+### Docker
+
+1. Pull the image `docker pull shyguy1412/bb-external-editor:latest`
+1. Create a folder for your scripts `mkdir scripts`
+1. Create the container `docker create --name bb-external-editor -p 12525:12525 -v ./scripts:/bb-external-editor/servers shyguy1412/bb-external-editor:latest`
+1. Start the container `docker start bb-external-editor`
+
+## File Hierarchy
+
+The destination server of your scripts is determined by their file hierarchy. The file hierarchy consists of a basepath (default `/servers`), a server name and the script path.  
+This means a file with the path `servers/home/lib/utils.ts` will be placed on the home server, in the lib folder as utils.js while a file with the path `servers/pserv-1/hack.ts` would be placed on pserv-1 as `hack.js`.  
+If a server does not exist a warning will be printed to the console.
 
 Now any changes made to scripts inside the server folders will automatically be uploaded to Bitburner.
 
@@ -154,4 +171,47 @@ const createContext = async () => await context({
 let ctx = await createContext();
 ctx.watch();
 
+```
+
+## Remote Debugging
+
+This tool supports remote debugging for both the Steam version and the web version running in a Chrome/Chromium browser.
+
+```js
+const createContext = async () => await context({
+  entryPoints: [
+    'servers/**/*.js',
+    'servers/**/*.jsx',
+    'servers/**/*.ts',
+    'servers/**/*.tsx',
+  ],
+  outbase: "./servers",
+  outdir: "./build",
+  plugins: [
+    BitburnerPlugin({
+      port: 12525,
+      types: 'NetscriptDefinitions.d.ts',
+      remoteDebugging: true
+    })
+  ],
+  bundle: true,
+  format: 'esm',
+  platform: 'browser',
+  logLevel: 'info'
+});
+
+const ctx = await createContext();
+ctx.watch();
+```
+
+### Steam
+
+To enable remote debugging for the Steam version go into the properties for Bitburner (little cogwheel to the right when viewing Bitburner in your library) and add the following launch option `--remote-debugging-port=9222`.
+
+### Chrome/Chromium
+
+To enable remote debugging for your browser you need to launch it over the commandline like so:
+
+```sh
+<path-to-chrome> --remote-debugging-port=9222
 ```
