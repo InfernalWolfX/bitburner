@@ -15,7 +15,7 @@ async function main(ns) {
   const buffers = Object.fromEntries(symbols.map((s) => [s, []]));
   const tfMinutes = Object.fromEntries(symbols.map((s) => [s, 5]));
   let curIdx = Math.max(0, symbols.indexOf(ns.args[0] ?? symbols[0]));
-  const doc = eval("document");
+  const doc = (0, eval)("document"); // Making this an indirect eval to avoid scope hoisting!
   doc.addEventListener("keydown", (e) => {
     switch (e.key.toLowerCase()) {
       case "a":
